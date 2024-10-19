@@ -32,7 +32,7 @@ class UserRegistration
     }
 
     //Метод хэширование пароля
-    public function hashPass() : string
+    public function hashPassword() : string
     {
         return password_hash($this->pass,PASSWORD_DEFAULT);
     }
@@ -42,12 +42,12 @@ class UserRegistration
     {
         try {
             $this->validate();
-            $hashPass = $this->hashPass();
+            $hashPass = $this->hashPassword();
 
             $query = ("INSERT INTO `users` (login, pass, email) VALUES (:login, :pass, :email");
             $stmt = $this->conn->prepare($query);
             $stmt->bindParam(':login', $login);
-            $stmt->bindParam(':pass', $pass);
+            $stmt->bindParam(':pass', $hashPass);
             $stmt->bindParam(':email', $email);
 
             if ($stmt->execute())

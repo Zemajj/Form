@@ -7,9 +7,9 @@
     <link rel="stylesheet" href="style.css">
     <title>PHP</title>
 </head>
-<body bgcolor="#6495ed">
+<body bgcolor="#E6E6FA">
 
-    <form action="register.php" method="post">
+    <form action="UserRegistration.php" method="post">
         <input type="text" placeholder="login" name="login" required>
         <input type="password" placeholder="password" name="pass" required>
         <input type="password" placeholder="repeat password" name="repeatpass" required>
@@ -17,7 +17,7 @@
         <button type="submit">Register</button>
     </form>
 
-    <form action="login.php" method="post">
+    <form action="Authorization.php" method="post">
         <input type="text" placeholder="login" name="login" required>
         <input type="password" placeholder="password" name="pass" required>
         <button type="submit">Authorization</button>
