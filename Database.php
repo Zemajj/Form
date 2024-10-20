@@ -3,10 +3,10 @@ class Database {
 
 
     public function __construct(
-        private string $host = 'MySQL-8.2',
-        private string $username = 'root',
-        private string $db_name = 'registerUser',
-        private int|string $password = ''
+        private string $host = '',
+        private string $username = '',
+        private string $db_name = '',
+        private string $password = ''
 
     ) {}
 

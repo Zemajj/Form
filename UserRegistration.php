@@ -1,44 +1,33 @@
 <?php
-
-require 'Database.php';
 class UserRegistration
 {
-    public function __construct
-    (
-        private $conn,
-        private string $login,
-        private int|string $pass,
-        private string $email,
-        private int|string $repeatPass
-    )
-    {}
+    public function __construct(
+        private $db,
+        private $conn
+    ) {$this->conn= $db;}
 
     // Метод валидации данных
-    public function validate()
+    public function validate($login, $pass, $email, $repeatPass)
     {
-        if(empty($this->login) || empty($this->pass) || empty($this->email) || empty($this->repeatPass))
-        {
+        if (empty($login) || empty($pass) || empty($email) || empty($repeatPass)) {
             throw new Exception("Заполните все поля");
         }
-        if(!filter_var($this->email, FILTER_VALIDATE_EMAIL))
-        {
+        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
             throw new Exception("Неверный формат email");
-
         }
-        if($this->pass !== $this->repeatPass)
-        {
+        if ($this->pass !== $this->repeatPass) {
             throw new Exception("Пароли не совпадают");
         }
     }
 
-    //Метод хэширование пароля
-    public function hashPassword() : string
+    // Метод хэширования пароля
+    public function hashPassword()
     {
-        return password_hash($this->pass,PASSWORD_DEFAULT);
+        return password_hash($this->pass, PASSWORD_DEFAULT);
     }
 
-    //Метод для регистрации пользователя
-    public function registerUser($login, $pass, $email)
+    // Метод для регистрации пользователя
+    public function registerUser()
     {
         try {
             $this->validate();
@@ -46,23 +35,19 @@ class UserRegistration
 
             $query = ("INSERT INTO `users` (login, pass, email) VALUES (:login, :pass, :email");
             $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':login', $login);
+            $stmt->bindParam(':login', $this->login);
             $stmt->bindParam(':pass', $hashPass);
-            $stmt->bindParam(':email', $email);
+            $stmt->bindParam(':email', $this->email);
 
-            if ($stmt->execute())
-            {
+            if ($stmt->execute()) {
                 echo "Регистрация прошла успешно";
-            } else
-            {
-                throw new Exception("Ошибка");
+            } else {
+                throw new Exception("Ошибка регистрации");
             }
 
-            $stmt->close();
-        } catch (Exception $e)
-        {
+            $stmt = null; // Освобождаем память
+        } catch (Exception $e) {
             echo $e->getMessage();
         }
-
     }
 }
