@@ -1,53 +1,40 @@
 <?php
+
 class UserRegistration
 {
-    public function __construct(
-        private $db,
-        private $conn
-    ) {$this->conn= $db;}
+    private $conn;
 
-    // Метод валидации данных
-    public function validate($login, $pass, $email, $repeatPass)
+    public function __construct($db)
     {
-        if (empty($login) || empty($pass) || empty($email) || empty($repeatPass)) {
-            throw new Exception("Заполните все поля");
-        }
-        if (!filter_var($this->email, FILTER_VALIDATE_EMAIL)) {
-            throw new Exception("Неверный формат email");
-        }
-        if ($this->pass !== $this->repeatPass) {
-            throw new Exception("Пароли не совпадают");
-        }
+        $this->conn = $db;
     }
 
     // Метод хэширования пароля
-    public function hashPassword()
+    private function hashPassword(string $pass): string
     {
-        return password_hash($this->pass, PASSWORD_DEFAULT);
+        return password_hash($pass, PASSWORD_DEFAULT);
     }
 
     // Метод для регистрации пользователя
-    public function registerUser()
+    public function registerUser(string $login, string $pass, string $email)
     {
+        $hashedPassword = $this->hashPassword($pass);
+
+        // Исправленный SQL-запрос с закрывающей скобкой
+        $query = "INSERT INTO  `test` (login, pass, email) VALUES (:login, :pass, :email)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':login', $login);
+        $stmt->bindParam(':pass', $hashedPassword);
+        $stmt->bindParam(':email', $email);
+
+        // Выполнение запроса и проверка
+
         try {
-            $this->validate();
-            $hashPass = $this->hashPassword();
-
-            $query = ("INSERT INTO `users` (login, pass, email) VALUES (:login, :pass, :email");
-            $stmt = $this->conn->prepare($query);
-            $stmt->bindParam(':login', $this->login);
-            $stmt->bindParam(':pass', $hashPass);
-            $stmt->bindParam(':email', $this->email);
-
-            if ($stmt->execute()) {
-                echo "Регистрация прошла успешно";
-            } else {
-                throw new Exception("Ошибка регистрации");
-            }
-
-            $stmt = null; // Освобождаем память
+            $stmt->execute();
         } catch (Exception $e) {
-            echo $e->getMessage();
+            echo "Ошибка подключения: " . $e->getMessage();
         }
+
+
     }
 }

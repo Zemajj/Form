@@ -1,36 +1,36 @@
 <?php
-class Authorization {
-    public function __construct
-    (
-        private $conn,
-        $db
-    )
-    {$this->conn = $db;}
 
-    public function Login($login, $pass) {
-        if (empty($login) || empty($pass)) {
-            return "Заполните поля"; // проверка на заполненность полей
-        }
+class Authorization
+{
+    private $conn;
 
-        // Подготовленный запрос
-        $stmt = $this->conn->prepare("SELECT * FROM `users` WHERE login = :login");
-        $stmt->bind_param(':login', $login);
+    public function __construct($db)
+    {
+        $this->conn = $db;
+    }
+
+    // Метод для авторизации пользователя
+    public function login(string $login, string $pass): bool
+    {
+        // Исправлен SQL-запрос
+        $query =  "SELECT pass FROM `test` WHERE login = :login";
+
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(':login', $login);
         $stmt->execute();
-        $result = $stmt->get_result();
+        // Получаем результат запроса
+        $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-
-            // Проверка пароля
-            if (password_verify($pass, $row['pass'])) {
-                return "Добро пожаловать! " . htmlspecialchars($row['login']);
-            } else {
-                return "Неверный пароль";
-            }
+        // Проверка на существование пользователя и правильность пароля
+        if ($user && password_verify($pass, $user['pass']))
+        {
+            // Логика успешной авторизации
+            echo "Успешная авторизация.";
+            return true;
         } else {
-            return "Такого пользователя нет";
+            // Логика неуспешной авторизации
+            echo "Неверный логин или пароль.";
+            return false;
         }
     }
 }
-
-
